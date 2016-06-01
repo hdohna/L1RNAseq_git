@@ -35,10 +35,10 @@ for (BamFile in BamFilesToBeFiltered){
   #                              mapqFilter = 1, what = c("mapq", "qwidth"))
   # filterBam(BamFile, FilteredBamFile, param = paramFilter, filter = WidthFilter)
   
-  paramFilter  <- ScanBamParam(tagFilter = list(NM = 0:2, AS = 100:500),
+  paramFilter  <- ScanBamParam(tagFilter = list(NM = 0:2),
                                mapqFilter = 1)
   FilteredBamFile <- gsub(".bam", ".filtered.bam", BamFile)
-  filterBam(BamFile, FilteredBamFile, param = paramFilter)
+  filterBam(BamFile, FilteredBamFile, param = paramFilter, overwrite = T)
   
 }
 
