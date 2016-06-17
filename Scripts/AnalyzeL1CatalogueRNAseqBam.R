@@ -19,7 +19,7 @@ library(seqinr)
 library(ape)
 
 # Specify file paths
-BamFolder        <- 'D:/L1RNAseq/Data/'
+BamFolder      <- 'D:/L1RNAseq/Data/'
 CatalogueFile  <- "D:/L1polymORF/Data/L1Catalogue_Updated_Sat_May_07_15-15-31_2016.csv"
 CatalogSeqFile <- "D:/L1polymORF/Data/L1CatalogueWithFlank_Sat_May_07_15-15-31_2016.fas"
 AlignListFile  <- "D:/L1polymORF/Data/L1CatalogueWithFlank_Sat_May_07_15-15-31_2016_L1Locations.RData"
@@ -200,10 +200,9 @@ for(i in 1:length(StartVals)) {
 # position. The matrix generated below gives for each L1 (row) an index 
 # that gives for the respective MidPoints position (column) its position
 # in the sequence without indels
-StarVals2SeqMap <- sapply(1:nrow(L1Alignment) function(i){
+StarVals2SeqMap <- sapply(1:nrow(L1Alignment), function(i){
   SeqPos <- which(L1Alignment[i,] != "-")
-  which(SeqPos %in% MidPoints)
-  
+  SeqPos[SeqPos %in% MidPoints]
 })
 # Plot coverage with
 par(mfrow = c(3, 3), oma = c(2, 2, 0, 4))
