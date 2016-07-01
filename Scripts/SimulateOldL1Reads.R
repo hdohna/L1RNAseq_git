@@ -24,7 +24,7 @@
 ########################################
 
 # Source start script
-source('D:/L1polymORF/Scripts/_Start_L1polymORF.r')
+#source('D:/L1polymORF/Scripts/_Start_L1polymORF.r')
 source('/home/hzudohna/RScripts/_Start_SCG4.R')
 
 # Load packages
@@ -32,7 +32,7 @@ library(BSgenome.Hsapiens.UCSC.hg38)
 
 # Files and folders
 RepeatFile <- "D:/L1polymORF/Data/repeatsHg38"
-RepeatFile <- "D:/L1polymORF/Data/repeatsHg38"
+RepeatFile <- "/srv/gsfs0/projects/levinson/hzudohna/RefSeqData/repeatsHg38"
 OutFastQfilePath1 <- '/srv/gsfs0/projects/levinson/hzudohna/RNAseq/SimulatedOldL1_R1.fastq'
 OutFastQfilePath2 <- '/srv/gsfs0/projects/levinson/hzudohna/RNAseq/SimulatedOldL1_R2.fastq'
 
@@ -53,7 +53,7 @@ ReadsSampledPerL1 <- round(MeanCover * 6000 / ReadLength / 2)
 cat("Read and process repeatMasker table \n")
 
 # Read repeat table
-RepeatTable <- read.delim("D:/L1polymORF/Data/repeatsHg38")
+RepeatTable <- read.delim(RepeatFile)
 RepeatTable <- RepeatTable[nchar(as.character(RepeatTable$genoName)) <= 5, ]
 
 # Subset repeat table to get only L1
