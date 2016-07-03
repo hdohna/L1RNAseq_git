@@ -47,6 +47,7 @@ L1Catalog <- L1Catalog[AccMatch, ]
 # Get file paths to all bam files
 BamFiles <- list.files(BamFolder, pattern = ".bam", full.names = T)
 BamFiles <- BamFiles[-grep(".bam.", BamFiles)]
+BamFiles <- BamFiles[grep("accepted_hits", BamFiles)]
 
 ############################
 #                          #
@@ -56,8 +57,8 @@ BamFiles <- BamFiles[-grep(".bam.", BamFiles)]
 
 # Extract experiment names from file names
 ExperimentNames <- sapply(BamFiles, function(x){
-  Split1 <- strsplit(x, "/")[[1]]
-  strsplit(Split1[length(Split1)], "_")[[1]][1]
+  Split1 <- strsplit(x, "_")[[1]]
+  strsplit(Split1[length(Split1)], "\\.")[[1]][1]
 })
 
 # Process different bam files
@@ -78,12 +79,15 @@ plot(L1Catalog$Activity, CoverSum)
 #                          #
 ############################
 
-# Plot the first 9 elements with highest coverage sums
+# Plot the first 9 elements with highest coverage sums and get 9 with intermediate sums
 idxHighCover <- order(CoverSum, decreasing = T)[1:9]
+idxMedCover  <- order(CoverSum, decreasing = T)[51:59]
+par(mfrow = c(1, 1))
+plot(CoverSum[order(CoverSum, decreasing = T)])
 
 Cols <- rainbow(length(CoverObjectList))
 par(mfrow = c(3, 3), oma = c(2, 2, 0, 2))
-for (i in idxHighCover){
+for (i in idxMedCover){
   plot(CoverObjectList[[1]]$CoverMatL1[i,], xlab = "", 
        ylab = "",
        main = rownames(CoverObjectList[[1]]$CoverMatL1)[i],
@@ -175,7 +179,7 @@ StartVals <- seq(1, 6150, 10)
 MidPoints <- StartVals + 50
 MindistPerWindow    <- matrix(nrow = nrow(L1Alignment), ncol = length(StartVals))
 idxMindistPerWindow <- MindistPerWindow
-NrMindistPerWindow <- MindistPerWindow
+NrMindistPerWindow  <- MindistPerWindow
 for(i in 1:length(StartVals)) {
     x <- StartVals[i]
     W <- x:(x+100)
@@ -200,19 +204,20 @@ for(i in 1:length(StartVals)) {
 # position. The matrix generated below gives for each L1 (row) an index 
 # that gives for the respective MidPoints position (column) its position
 # in the sequence without indels
-StarVals2SeqMap <- sapply(1:nrow(L1Alignment), function(i){
-  SeqPos <- which(L1Alignment[i,] != "-")
-  SeqPos[SeqPos %in% MidPoints]
-})
+MidPoints2SeqMap <- t(sapply(1:nrow(L1Alignment), function(i){
+  AlignPos <- which(L1Alignment[i,] != "-")
+  PosMatch <- match(MidPoints, AlignPos)
+}))
+dim(MindistPerWindow)
 # Plot coverage with
 par(mfrow = c(3, 3), oma = c(2, 2, 0, 4))
-for (i in idxHighCover){
+for (i in idxMedCover){
   plot(CoverObjectList[[1]]$CoverMatL1[i,], xlab = "", 
        ylab = "",
        main = rownames(CoverObjectList[[1]]$CoverMatL1)[i],
        type = "l", col = Cols[1])
   par(new = TRUE)
-  plot(MidPoints, MindistPerWindow[i,], type = "l", axes = FALSE, bty = "n", 
+  plot(MidPoints2SeqMap[i,], MindistPerWindow[i,], type = "l", axes = FALSE, bty = "n", 
        xlab = "", ylab = "")
   axis(side=4)
 }

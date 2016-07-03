@@ -32,9 +32,9 @@ library(BSgenome.Hsapiens.UCSC.hg38)
 
 # Files and folders
 RepeatFile <- "D:/L1polymORF/Data/repeatsHg38"
-RepeatFile <- "/srv/gsfs0/projects/levinson/hzudohna/RefSeqData/repeatsHg38"
-OutFastQfilePath1 <- '/srv/gsfs0/projects/levinson/hzudohna/RNAseq/SimulatedOldL1_R1.fastq'
-OutFastQfilePath2 <- '/srv/gsfs0/projects/levinson/hzudohna/RNAseq/SimulatedOldL1_R2.fastq'
+# RepeatFile <- "/srv/gsfs0/projects/levinson/hzudohna/RefSeqData/repeatsHg38"
+# OutFastQfilePath1 <- '/srv/gsfs0/projects/levinson/hzudohna/RNAseq/SimulatedOldL1_R1.fastq'
+# OutFastQfilePath2 <- '/srv/gsfs0/projects/levinson/hzudohna/RNAseq/SimulatedOldL1_R2.fastq'
 
 # Read parameters
 MeanCover         <- 40

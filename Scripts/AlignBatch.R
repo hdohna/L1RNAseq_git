@@ -33,7 +33,7 @@ for (Dir in DataDirs[-1]){
   OutDir    <-  paste(OutputPath, LastDirPart, sep = "")
   if (!dir.exists(OutDir)) dir.create(OutDir)
   if (length(list.files(OutDir)) == 0){
-    CommandLine <- paste(AlignCommand, AlignOptions, OutDir,RefPath, FastqFile1, FastqFile2)
+    CommandLine <- paste(AlignCommand, AlignOptions, OutDir, RefPath, FastqFile1, FastqFile2)
     cat("Running script", ScriptFile, "\n")
     cat("Saving results to", OutDir, "\n")
     CreateAndCallqsubScript(file = ScriptFile, qsubCommandLines = CommandLine, 
