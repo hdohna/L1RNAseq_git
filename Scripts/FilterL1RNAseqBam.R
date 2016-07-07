@@ -16,10 +16,10 @@ library(Rsamtools)
 
 # Specify file paths
 #BamFile   <- '/share/diskarray3/hzudohna/RNAseq/iPS0425-2_RNA-35180276.sorted.bam'
-BamFolder <- '/share/diskarray3/hzudohna/RNAseq/'
+BamFolder <- '/srv/gsfs0/projects/levinson/hzudohna/RNAseq/'
 
 # Specify file name parts
-InputFileSuffix <- 'bowtiesortedunique.sorted.bam'
+InputFileSuffix <- 'alnBWA.bam'
 
 # Get all bam files to be filtered
 BamFilesToBeFiltered <- list.files(BamFolder, pattern = InputFileSuffix, 
@@ -36,7 +36,7 @@ for (BamFile in BamFilesToBeFiltered){
   # filterBam(BamFile, FilteredBamFile, param = paramFilter, filter = WidthFilter)
   
   paramFilter  <- ScanBamParam(tagFilter = list(NM = 0:2),
-                               mapqFilter = 1)
+                               mapqFilter = 10)
   FilteredBamFile <- gsub(".bam", ".filtered.bam", BamFile)
   filterBam(BamFile, FilteredBamFile, param = paramFilter, overwrite = T)
   
