@@ -29,7 +29,7 @@ DataDirs <- grep(DataPattern, DataDirs, value = T)
 
 # Loop through directories create a qsub file for alignment and submit it
 Dir <- DataDirs[1]
-for (Dir in DataDirs[8]){
+for (Dir in DataDirs[-8]){
   FastqFile1 <- list.files(Dir, pattern = '.trimmed.R1.fastq', full.names = T, recursive = T)
   FastqFile2 <- list.files(Dir, pattern = '.trimmed.R2.fastq', full.names = T, recursive = T)
   DirSplit  <- strsplit(Dir, "/")[[1]]
@@ -49,7 +49,7 @@ for (Dir in DataDirs[8]){
     cat("Saving results to", OutDir, "\n")
     CreateAndCallqsubScript(file = ScriptFile, 
        qsubHeaderLines = c('#! /bin/sh', '#', '#$ -N TEST', '#', '#$ -cwd', 
-                           '#$ -l h_rt=6:00:00', '#', '#$ -j y', '#',
+                           '#$ -l h_rt=48:00:00', '#', '#$ -j y', '#',
                            '#$ -P large_mem', '#', #'#$ -pe shm 6', '#', 
                             '#$ -S /bin/bash', '#', ''),
                 qsubCommandLines = CommandLine, 
