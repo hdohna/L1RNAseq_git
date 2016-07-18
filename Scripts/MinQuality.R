@@ -16,10 +16,12 @@ ScriptFile <- '/home/hzudohna/qsubMinQual'
 # Get all bam files
 BamFiles <- list.files(FolderPath, pattern = 'filteredReadOrientation.bam', 
                        recursive = T, full.names = T)
+BamFiles <- BamFiles[grep('tophat/', BamFiles)]
 BamFiles <- BamFiles[-grep(".bam.", BamFiles)]
 
 # Loop through bam files create a script for indexing per bam file and send off
 # script
+BamFile <- BamFiles[1]
 for (BamFile in BamFiles){
 
   NameSplit <- strsplit(BamFile, "\\/")[[1]]

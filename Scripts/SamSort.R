@@ -13,6 +13,7 @@ ScriptFile <- '/home/hzudohna/qsubSort'
 # Get all bam files
 BamFiles <- list.files(FolderPath, pattern = 'filteredReadOrientation.qual10.bam', 
                        recursive = T, full.names = T)
+BamFiles <- BamFiles[grep('tophat/', BamFiles)]
 if (length(grep(".bam.", BamFiles)) > 0){
   BamFiles <- BamFiles[-grep(".bam.", BamFiles)]
 }

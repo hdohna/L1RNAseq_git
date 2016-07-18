@@ -15,6 +15,7 @@ BamFolder <- '/srv/gsfs0/projects/levinson/hzudohna/RNAseq/'
 
 # Specify file name parts
 InputFileSuffix <- 'filteredR1.bam'
+PathPart <- 'tophat/'
 
 # Path to script file
 ScriptFile <- '/home/hzudohna/qsubMergeR1R2'
@@ -22,6 +23,7 @@ ScriptFile <- '/home/hzudohna/qsubMergeR1R2'
 # Get all bam files to be filtered
 BamFiles <- list.files(BamFolder, pattern = InputFileSuffix, recursive = T, 
                                   full.names = T)
+BamFiles <- BamFiles[grep(PathPart, BamFiles)]
 if (length(grep(".bam.", BamFiles)) > 0){
   BamFiles <- BamFiles[-grep(".bam.", BamFiles)]
 }
