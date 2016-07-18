@@ -21,8 +21,10 @@ library(ape)
 # Specify file paths
 BamFolder      <- 'D:/L1RNAseq/Data/'
 CatalogueFile  <- "D:/L1polymORF/Data/L1Catalogue_Updated_Sat_May_07_15-15-31_2016.csv"
-CatalogSeqFile <- "D:/L1polymORF/Data/L1CatalogueWithFlank_Sat_May_07_15-15-31_2016.fas"
-AlignListFile  <- "D:/L1polymORF/Data/L1CatalogueWithFlank_Sat_May_07_15-15-31_2016_L1Locations.RData"
+#CatalogSeqFile <- "D:/L1polymORF/Data/L1CatalogueWithFlank_Sat_May_07_15-15-31_2016.fas"
+CatalogSeqFile <- "D:/L1polymORF/Data/L1Catalog200FlankSameStrand_Sat_May_07_15-15-31_2016.fas"
+#AlignListFile  <- "D:/L1polymORF/Data/L1CatalogueWithFlank_Sat_May_07_15-15-31_2016_L1Locations.RData"
+AlignListFile  <- "D:/L1polymORF/Data/L1Catalog200FlankSameStrand_Sat_May_07_15-15-31_2016_L1Locations.RData"
 
 ############################
 #                          #
@@ -64,9 +66,10 @@ ExperimentNames <- sapply(BamFiles, function(x){
 # Process different bam files
 CoverObjectList <- lapply(BamFiles, function(x){
   cat(" *****    Processing", x, "****\n\n")
-  CalculateCoverMatL1Catalog(x, L1Catalog,L1withFlank, L1StartEnd)
+  CalculateCoverMatL1Catalog(x, L1Catalog, L1withFlank, L1StartEnd)
 })
 names(CoverObjectList) <- ExperimentNames
+width(CoverObjectList[[1]][[1]][[4]])
 
 # Get total coverage per L1
 CoverByExperiment <- sapply(CoverObjectList, function(x)rowSums(x$CoverMatL1))
@@ -85,6 +88,7 @@ idxMedCover  <- order(CoverSum, decreasing = T)[51:59]
 par(mfrow = c(1, 1))
 plot(CoverSum[order(CoverSum, decreasing = T)])
 
+# Plot coverage for different experiments
 Cols <- rainbow(length(CoverObjectList))
 par(mfrow = c(3, 3), oma = c(2, 2, 0, 2))
 for (i in idxMedCover){
@@ -118,7 +122,7 @@ i    <- 1
 Exp1 <- 1
 Exp2 <- 3
 par(mfrow = c(3, 3), oma = c(2, 2, 0, 2))
-for (i in idxHighCover){
+for (i in idxMedCover){
   CM1 <- CoverObjectList[[Exp1]]$CoverMatL1
   CM2 <- CoverObjectList[[Exp2]]$CoverMatL1
   plot(CM1[i,],CM2[i,],
@@ -148,9 +152,10 @@ AccMatch2  <- match(L1Catalog$Accession, NameParts[idxAllele1,"Accession"])
 
 # Create an alignment matrix and check that accession names match
 L1Alignment <- t(sapply(idxAllele1[AccMatch2], function(i) L1Alignment[[i]]))
-NameParts2 <- t(sapply(rownames(L1Alignment), function(x) strsplit(x, "_")[[1]]))
+NameParts2  <- t(sapply(rownames(L1Alignment), function(x) strsplit(x, "_")[[1]]))
 colnames(NameParts2) <- c("Accession", "Allele")
 all(L1Catalog$Accession == NameParts2[ ,"Accession"])
+all(rownames(CoverObjectList[[2]]$CoverMatL1) == NameParts2[ ,"Accession"])
 
 # Loop through all L1s and create a vector for each L1 that indicates for each
 # bp whether it contains a nucleotide unique to this L1
@@ -174,16 +179,22 @@ plot(NrUnique, CoverSum)
 Lmfit <- lm(CoverSum ~ NrUnique)
 plot(L1Catalog$Activity, Lmfit$residuals)
 
-# Calculate minimum distance to closest sequence per 100 bp window
-StartVals <- seq(1, 6150, 10)
-MidPoints <- StartVals + 50
-MindistPerWindow    <- matrix(nrow = nrow(L1Alignment), ncol = length(StartVals))
+# Calculate minimum distance to closest sequence per 74 bp window
+
+WindowStep  <- 1
+WindowWidth <- 74
+StartVals <- seq(1, 6150, WindowStep)
+MidPoints <- StartVals + round(WindowWidth / 2)
+MindistPerWindow  <- matrix(nrow = nrow(L1Alignment), 
+                              ncol = length(StartVals))
+rownames(MindistPerWindow) <- rownames(L1Alignment)
 idxMindistPerWindow <- MindistPerWindow
 NrMindistPerWindow  <- MindistPerWindow
 for(i in 1:length(StartVals)) {
     x <- StartVals[i]
-    W <- x:(x+100)
-    DistMat <- dist.dna(as.DNAbin(L1Alignment[,W]), model = "raw", as.matrix = T, 
+    W <- x:(x + WindowWidth)
+    DistMat <- dist.dna(as.DNAbin(L1Alignment[,W]), model = "raw", 
+                        as.matrix = T, 
                         pairwise.deletion = T)
     diag(DistMat) <- NA
     #    cat("Dimensions of dist:", dim(DistMat), "\n")
@@ -207,11 +218,22 @@ for(i in 1:length(StartVals)) {
 MidPoints2SeqMap <- t(sapply(1:nrow(L1Alignment), function(i){
   AlignPos <- which(L1Alignment[i,] != "-")
   PosMatch <- match(MidPoints, AlignPos)
+  blnNA    <- is.na(PosMatch)
+  i <- 1
+  while (any(blnNA) & i <= 100){
+    PosMatch[blnNA] <- match(MidPoints[blnNA] + i, AlignPos)
+    blnNA           <- is.na(PosMatch)
+    PosMatch[blnNA] <- match(MidPoints[blnNA] - i, AlignPos)
+    i <- i + 1
+  }
+  PosMatch
 }))
-dim(MindistPerWindow)
-# Plot coverage with
+sum(is.na(MidPoints2SeqMap))
+
+# Plot coverage with number of nucleotide differences per window
 par(mfrow = c(3, 3), oma = c(2, 2, 0, 4))
-for (i in idxMedCover){
+for (i in c(grep("AC208509", rownames(MindistPerWindow)),
+            idxMedCover[-1])){
   plot(CoverObjectList[[1]]$CoverMatL1[i,], xlab = "", 
        ylab = "",
        main = rownames(CoverObjectList[[1]]$CoverMatL1)[i],
@@ -227,8 +249,31 @@ mtext("Proportional difference to closest sequence", side = 4, outer = T,
       line = 2)
 CreateDisplayPdf("D:/L1RNAseq/Figures/iPScoverPerL1withMapability.pdf")
 
+# Check what other L1 element AC208509 is closest to in the 3000's range 
+idxAC208509 <- grep("AC208509", rownames(MindistPerWindow))
+MindistPerWindow[MindistPerWindow == Inf] <- NA
+MeanMinDist <- rowMeans(MindistPerWindow, na.rm = T)
+MeanMinDist[idxAC208509]
+blnRange <- MidPoints2SeqMap[idxAC208509, ] >= 3000 & 
+  MidPoints2SeqMap[idxAC208509, ] <= 3500
+idxMindistPerWindow[idxAC208509, blnRange]
+rownames(MindistPerWindow)[idxMindistPerWindow[idxAC208509, blnRange]]
+rownames(MindistPerWindow)[128]
+
 # Determine closely related L1 in 4000-4500 bp window
-idxWindow <- MidPoints >= 4000 & MidPoints <= 4500
+idxWindow <- idxMindistPerWindow[idxAC208509, blnRange]
+
+# Save a subset of the alignment
+idxCloseSeq <- c(idxAC208509, unique(idxWindow))
+L1AlignmentSubsetList <- lapply(idxCloseSeq, function(i) {
+  Seq <- L1Alignment[i,]
+  Seq[Seq != "-"]
+  })
+write.fasta(L1AlignmentSubsetList, 
+            names = rownames(L1Alignment)[idxCloseSeq],
+            file.out = "D:/L1RNAseq/Data/L1CatalogCloseSeqs.fas")
+
+
 #####################################
 #                                   #
 #   Plot coverage & mappability     #

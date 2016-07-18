@@ -1,0 +1,9 @@
+samtools view -h -f 0x40 /srv/gsfs0/projects/levinson/hzudohna/RNAseq/sample1/tophat/accepted_hits.bam | samtools view -h -f 0x10 -b - > /srv/gsfs0/projects/levinson/hzudohna/RNAseq/sample1/tophat/accepted_hits.filteredR1.bam
+
+samtools view -h -f 0x80 /srv/gsfs0/projects/levinson/hzudohna/RNAseq/sample1/tophat/accepted_hits.bam | samtools view -h -f 0x20 -b - > /srv/gsfs0/projects/levinson/hzudohna/RNAseq/sample1/tophat/accepted_hits.filteredR2.bam
+
+samtools merge /srv/gsfs0/projects/levinson/hzudohna/RNAseq/sample1/tophat/accepted_hits_sample1.filteredReadOrientation.bam /srv/gsfs0/projects/levinson/hzudohna/RNAseq/sample1/tophat/accepted_hits.filteredR1.bam /srv/gsfs0/projects/levinson/hzudohna/RNAseq/sample1/tophat/accepted_hits.filteredR2.bam
+
+samtools index srv/gsfs0/projects/levinson/hzudohna/RNAseq/sample1/tophat/accepted_hits_sample1.filteredReadOrientation.bam
+
+samtools view -x NH:2 -b -h -o srv/gsfs0/projects/levinson/hzudohna/RNAseq/sample1/tophat/accepted_hits_sample1.filteredReadOrientation.unique.bam /srv/gsfs0/projects/levinson/hzudohna/RNAseq/sample1/tophat/accepted_hits_sample1.filteredReadOrientation.bam

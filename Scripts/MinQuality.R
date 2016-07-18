@@ -1,10 +1,10 @@
 # The following script subset all tophat bam files to retain minimum quality
 
 # Source start script
-source('/home/hzudohna/L1polymORF/Scripts/_Start_L1polymORF_bix2.R')
+source('/home/hzudohna/L1polymORFgit/Scripts/_Start_L1polymORF_scg4.R')
 
 # Specifify path to folder that contains all the bam files
-FolderPath <- '/share/diskarray3/hzudohna/RNAseq'
+FolderPath <- '/srv/gsfs0/projects/levinson/hzudohna/RNAseq/'
 
 # Specify minimum quality value
 MinQual <- 10
@@ -14,7 +14,7 @@ NewSuffix <- paste("qual", MinQual, ".bam", sep = "")
 ScriptFile <- '/home/hzudohna/qsubMinQual'
 
 # Get all bam files
-BamFiles <- list.files(FolderPath, pattern = 'accepted_hits', 
+BamFiles <- list.files(FolderPath, pattern = 'filteredReadOrientation.bam', 
                        recursive = T, full.names = T)
 BamFiles <- BamFiles[-grep(".bam.", BamFiles)]
 
@@ -23,13 +23,14 @@ BamFiles <- BamFiles[-grep(".bam.", BamFiles)]
 for (BamFile in BamFiles){
 
   NameSplit <- strsplit(BamFile, "\\/")[[1]]
-  ScriptFileN <- paste(ScriptFile, NameSplit[length(NameSplit) - 1], sep = "_")
+  ScriptFileN <- paste(ScriptFile, NameSplit[length(NameSplit) - 2], sep = "_")
   
   # Command line file for sorting
   OutFile <- ReplaceSuffix(BamFile, NewSuffix)
-  CommandLine <- paste("/home/txw/samtools/samtools-1.2/samtools view -h -q", MinQual,
-                       BamFile, "-o", OutFile)
-  cat("Running script", ScriptFile, "\n")
+  CommandLine <- c("module load samtools", 
+                   paste("samtools view -h -q", MinQual,
+                       BamFile, "-o", OutFile))
+  cat("Running script", ScriptFileN, "\n")
   CreateAndCallqsubScript(file = ScriptFileN, 
                           qsubCommandLines = CommandLine, 
                           scriptName = 'MinQual')
